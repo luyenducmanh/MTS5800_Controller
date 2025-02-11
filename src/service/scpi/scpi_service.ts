@@ -22,7 +22,15 @@ export default class ScpiService {
   }
 
   async enableRemoteControl(): Promise<string> {
-    return this.client.sendSafetyCommand(GENERAL_CMD.REM);
+    return this.client.sendCommand(GENERAL_CMD.REM);
+  }
+
+  async enableUIControl(): Promise<string> {
+    return this.client.sendCommand(GENERAL_CMD.REM_FULL);
+  }
+
+  async testCommand(cmd: string): Promise<string> {
+    return this.client.sendCommand(cmd);
   }
 
   async getListModule(

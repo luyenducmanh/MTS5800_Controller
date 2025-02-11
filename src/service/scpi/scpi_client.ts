@@ -1,3 +1,4 @@
+import { set } from "@dotenvx/dotenvx";
 import { Socket } from "net";
 
 export default class ScpiClient {
@@ -32,15 +33,37 @@ export default class ScpiClient {
 
   // Gửi lệnh SCPI
   public sendCommand(command: string): Promise<string> {
+    console.log(command);
     return new Promise((resolve, reject) => {
-      this.client.once("data", (data) => {
-        resolve(data.toString().trim());
-      });
+      let timeOut = setTimeout(() => {
+        console.error("Command timeout");
+        this.client.removeAllListeners("data");
+        timeOut = null;
+        resolve("Timeout");
+      }, 90 * 1000);
 
-      this.client.write(`${command}\n`, "utf-8", (err) => {
+      this.client.write(`${command.trim()}\n`, "ascii", (err) => {
         if (err) {
+          console.error("Error sending command:", err);
           reject(err);
         }
+      });
+
+      this.client.write(`:SYSTem:ERRor?\n`, "ascii", (err) => {
+        if (err) {
+          console.error("Error sending command:", err);
+          reject(err);
+        }
+
+        console.log(`Send command: :SYSTem:ERRor?`);
+      });
+
+      this.client.once("data", (data) => {
+        console.log("Data response: ", data.toString("ascii"));
+        if (timeOut) {
+          clearTimeout(timeOut);
+        }
+        resolve(data.toString().trim());
       });
     });
   }
@@ -54,7 +77,9 @@ export default class ScpiClient {
   }
 
   public async sendSafetyCommand(command: string): Promise<string> {
+    console.log(`Send safety command: ${command}`);
     let result = await this.sendCommand(command);
+    console.log(`Response: ${result}`);
     await this.checkSystemError();
     return result;
   }

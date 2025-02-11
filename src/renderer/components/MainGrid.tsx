@@ -1,17 +1,8 @@
 import * as React from "react";
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import Copyright from "../internals/components/Copyright";
-import ChartUserByCountry from "./ChartUserByCountry";
-import CustomizedTreeView from "./CustomizedTreeView";
-import CustomizedDataGrid from "./CustomizedDataGrid";
-import HighlightedCard from "./HighlightedCard";
-import PageViewsBarChart from "./PageViewsBarChart";
-import SessionsChart from "./SessionsChart";
 import StatCard, { StatCardProps } from "./StatCard";
-import { Button } from "@mui/material";
+import { Button, Input } from "@mui/material";
 
 const data: StatCardProps[] = [
   {
@@ -48,6 +39,8 @@ const data: StatCardProps[] = [
 ];
 
 export default function MainGrid() {
+  const [cmd, setCmd] = React.useState("");
+
   return (
     <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
       {/* cards */}
@@ -57,14 +50,22 @@ export default function MainGrid() {
         columns={12}
         sx={{ mb: (theme) => theme.spacing(2) }}
       >
+        <Input value={cmd} onChange={(e) => setCmd(e.target.value)} />
         <Button
           variant="contained"
           onClick={async () => {
-            console.log("Button clicked");
             console.log(await window.measurementAPI.startExample());
           }}
         >
           Start Measurement
+        </Button>
+        <Button
+          variant="contained"
+          onClick={async () => {
+            console.log(await window.measurementAPI.executeCommand(cmd));
+          }}
+        >
+          Excute Command
         </Button>
       </Grid>
     </Box>

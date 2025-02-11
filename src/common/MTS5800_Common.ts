@@ -2,6 +2,7 @@ export const GENERAL_CMD = {
   ///
   SYSTEM_ERROR: "SYST:ERR?", // Kiểm tra hệ thống xem có lỗi hay không ( cần thực hiện sau mỗi lệnh được gửi đi )
   REM: "*REM", // Bắt đầu chế độ điều khiển từ xa cho máy hoặc module
+  REM_FULL: "*REM VISIBLE FULL", // Bắt đầu chế độ điều khiển từ xa cho máy hoặc module và hiển thị UI
   IDN: "*IDN?",
   OPC: "*OPC?",
   //* Lấy danh sách các module mà máy hỗ trợ

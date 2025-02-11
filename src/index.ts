@@ -15,44 +15,50 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
+const host = process.env.REMOTE_IP ?? "";
+const port = process.env.REMOTE_PORT ? Number(process.env.REMOTE_PORT) : 8000;
+let service: ScpiService | null = null;
+
 async function testMeasure() {
-  const host = process.env.REMOTE_IP ?? "";
-  const service = new ScpiService(host);
-  let result = "unavailable";
+  service = new ScpiService(host, port);
+  // let result = "unavailable";
   try {
     await service.connect();
 
     // Enable Remote Control
     await service.enableRemoteControl();
+    await service.enableUIControl();
 
-    // Query module port
-    const port = await service.queryModulePort("BERT");
-    console.log("Module Port:", port);
+    // // Query module port
+    // const port = await service.queryModulePort("BERT");
+    // console.log("Module Port:", port);
 
-    // Check if module is ready
-    const isReady = await service.checkModuleReady("BERT");
-    console.log("Module Ready:", isReady);
+    // // Check if module is ready
+    // const isReady = await service.checkModuleReady("BERT");
+    // console.log("Module Ready:", isReady);
 
-    if (isReady) {
-      // Launch an application
-      await service.selectApplication("TermEth1GL2Traffic");
+    // if (isReady) {
+    //   // Launch an application
+    //   await service.selectApplication("TermEth1GL2Traffic");
 
-      // Create and start session
-      await service.createAndStartSession();
+    //   // Create and start session
+    //   await service.createAndStartSession();
 
-      // Start the test
-      result = await service.startMeasurement();
+    //   // Start the test
+    //   result = await service.startMeasurement();
 
-      // Stop the test (example)
-      await service.stopMeasurement();
-    }
+    //   // Stop the test (example)
+    //   await service.stopMeasurement();
+    // }
   } catch (error) {
     console.error("Error in remote control:", error);
-  } finally {
-    service.endSession();
   }
 
-  return result;
+  return true;
+}
+
+async function testCommand(cmd: string) {
+  return service.testCommand(cmd);
 }
 
 const createWindow = async (): Promise<void> => {
@@ -67,7 +73,12 @@ const createWindow = async (): Promise<void> => {
   });
 
   ipcMain.handle("start:example", async () => {
+    console.log("Start Example");
     return await testMeasure();
+  });
+
+  ipcMain.handle("execute:command", async (event, cmd: string) => {
+    return await testCommand(cmd);
   });
 
   // and load the index.html of the app.

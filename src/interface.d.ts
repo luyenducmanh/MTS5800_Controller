@@ -1,5 +1,6 @@
 export interface IMeasurementAPI {
   startExample: () => Promise<void>;
+  executeCommand: (cmd: string) => Promise<void>;
 }
 
 declare global {
